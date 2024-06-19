@@ -15,4 +15,7 @@ class Cuenta extends Model
     public function divisas(){
         return $this->belongsTo(Divisa::class, 'divisas_id');
     }
+    public function transaccion(){
+        return $this->hasMany(Transaccion::class, 'id');
+    }
 }
