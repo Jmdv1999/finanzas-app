@@ -33,6 +33,9 @@ class AppPanelProvider extends PanelProvider
             ->id('app')
             ->path('app')
             ->login()
+            ->resources([
+                config('filament-logger.activity_resource')
+            ])
             ->registration()
             ->colors([
                 'primary' => Color::Indigo,
@@ -79,6 +82,7 @@ class AppPanelProvider extends PanelProvider
                     ->setIcon('heroicon-o-user')
                     ->setSort(2)
             ]);
+            
             
     }
 }
