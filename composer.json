@@ -9,6 +9,7 @@
         "awcodes/filament-gravatar": "^2.0",
         "bezhansalleh/filament-language-switch": "^3.1",
         "filament/filament": "^3.2",
+        "flowframe/laravel-trend": "^0.2.0",
         "joaopaulolndev/filament-edit-profile": "^1.0",
         "joaopaulolndev/filament-general-settings": "^1.0",
         "laravel/framework": "^11.9",
