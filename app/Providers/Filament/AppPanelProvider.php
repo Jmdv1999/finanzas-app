@@ -49,7 +49,6 @@ class AppPanelProvider extends PanelProvider
             ->pages([
                 Pages\Dashboard::class,
             ])
-            ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
         
             ->middleware([
                 EncryptCookies::class,
@@ -74,7 +73,8 @@ class AppPanelProvider extends PanelProvider
                     ->setIcon('heroicon-o-cog')
                     ->setNavigationGroup('Configuracion general')
                     ->setTitle('Configuracion del sitio')
-                    ->setNavigationLabel('Configuracion del sitio'),
+                    ->setNavigationLabel('Configuracion del sitio')
+                    ->canAccess(fn() => auth()->user()->id === 1),
                 FilamentEditProfilePlugin::make()
                     ->setTitle('Mi Perfil')
                     ->setNavigationLabel('Mi perfil')
