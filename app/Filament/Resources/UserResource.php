@@ -17,9 +17,17 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class UserResource extends Resource
 {
+
     protected static ?string $model = User::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationGroup = 'Configuracion general';
+    
+    public static function canViewAny(): bool
+    {
+        return auth()->check() && auth()->user()->id === 1;
+    }
+
 
     public static function form(Form $form): Form
     {

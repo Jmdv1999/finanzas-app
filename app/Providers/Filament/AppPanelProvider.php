@@ -33,9 +33,11 @@ class AppPanelProvider extends PanelProvider
             ->id('app')
             ->path('app')
             ->login()
-            ->resources([
-                config('filament-logger.activity_resource')
-            ])
+            ->resources(
+                auth()->check() && auth()->user()->id === 1 ? [
+                    config('filament-logger.activity_resource')
+                ] : []
+            )
             ->registration()
             ->colors([
                 'primary' => Color::Indigo,
@@ -43,13 +45,15 @@ class AppPanelProvider extends PanelProvider
                 'success' => Color::Green,
                 'info' => Color::Blue,
                 'warning' => Color::Amber
+            ])->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
+            ->widgets([
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
                 Pages\Dashboard::class,
             ])
-        
+
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
@@ -65,7 +69,7 @@ class AppPanelProvider extends PanelProvider
                 Authenticate::class,
             ])
             ->plugins([
-                GravatarPlugin::make() 
+                GravatarPlugin::make()
                     ->default('robohash')
                     ->rating('pg'),
                 FilamentGeneralSettingsPlugin::make()
@@ -74,7 +78,7 @@ class AppPanelProvider extends PanelProvider
                     ->setNavigationGroup('Configuracion general')
                     ->setTitle('Configuracion del sitio')
                     ->setNavigationLabel('Configuracion del sitio')
-                    ->canAccess(fn() => auth()->user()->id === 1),
+                    ->canAccess(fn () => auth()->user()->id === 1),
                 FilamentEditProfilePlugin::make()
                     ->setTitle('Mi Perfil')
                     ->setNavigationLabel('Mi perfil')
@@ -82,7 +86,5 @@ class AppPanelProvider extends PanelProvider
                     ->setIcon('heroicon-o-user')
                     ->setSort(2)
             ]);
-            
-            
     }
 }

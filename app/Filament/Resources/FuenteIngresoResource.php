@@ -20,6 +20,7 @@ class FuenteIngresoResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-c-wrench';
     protected static ?string $navigationLabel = 'Fuentes De Ingreso';
     protected static ?string $pluralModelLabel = 'Fuentes De Ingreso';
+    protected static ?string $navigationGroup = 'Mis cosas';
 
     public static function form(Form $form): Form
     {

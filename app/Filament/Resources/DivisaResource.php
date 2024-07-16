@@ -21,6 +21,7 @@ class DivisaResource extends Resource
     protected static ?string $model = Divisa::class;
 
     protected static ?string $navigationIcon = 'heroicon-s-currency-dollar';
+    protected static ?string $navigationGroup = 'Mis cosas';
 
     public static function form(Form $form): Form
     {

@@ -21,6 +21,7 @@ class CuentaResource extends Resource
     protected static ?string $model = Cuenta::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationGroup = 'Mis cosas';
 
     public static function form(Form $form): Form
     {

@@ -20,6 +20,8 @@ class TransaccionResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-m-arrows-right-left';
     protected static ?string $navigationLabel = 'Transacciones';
     protected static ?string $pluralModelLabel = 'Transacciones';
+
+    protected static ?string $navigationGroup = 'Financiero';
     public static function form(Form $form): Form
     {
         return $form
