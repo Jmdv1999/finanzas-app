@@ -15,6 +15,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Forms\Components\TextInput;
 
 class CreditoResource extends Resource
 {
@@ -84,13 +85,29 @@ class CreditoResource extends Resource
                             ->required()
                             ->searchable()
                             ->preload(),
+                        Forms\Components\TextInput::make('monto')
+                            ->label('Monto a pagar')
+                            ->numeric()
+                            ->required()
+                            ->prefix('$')
+                            ->rule(function ($record) {
+                                return [
+                                    'max:' . $record->monto
+                                ];
+                            }),
                     ])
                     ->action(function ($record, $data) {
-                        $record->estado = 'pagado';
+                        $record->monto -= $data['monto'];
+
+                        // Verificar si la deuda ha sido pagada completamente
+                        if ($record->monto <= 0) {
+                            $record->estado = 'pagado';
+                            $record->monto = 0; // Asegurarse de que el monto no sea negativo
+                        }
                         $record->save();
 
                         Transaccion::create([
-                            "monto" => $record->monto,
+                            "monto" => $data['monto'],
                             "concepto" => "pago de credito " . $record->id . " por concepto de " . $record->descripcion,
                             "tipo_transaccion" => "Ingreso",
                             "cuenta_id" => $data["cuenta_id"]

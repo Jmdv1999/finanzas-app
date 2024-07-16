@@ -13,6 +13,7 @@ use Filament\Forms;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -82,17 +83,31 @@ class DeudaResource extends Resource
                     ->form([
                         Select::make('cuenta_id')
                             ->label('Cuenta')
-                            ->options(Cuenta ::all()->pluck('nombre', 'id')->toArray())
+                            ->options(Cuenta::all()->pluck('nombre', 'id')->toArray())
                             ->required()
                             ->searchable()
                             ->preload(),
+                        TextInput::make('monto')
+                            ->label('Monto a Pagar')
+                            ->numeric()
+                            ->required()
+                            ->rule(function ($record) {
+                                return [
+                                    'max:' . $record->monto
+                                ];
+                            })
+
                     ])
                     ->action(function ($record, $data) {
-                        $record->estado = 'pagada';
+                        $record->monto -= $data['monto'];
+                        if ($record->monto <= 0) {
+                            $record->estado = 'pagada';
+                            $record->monto = 0; // Asegurarse de que el monto no sea negativo
+                        }
                         $record->save();
 
                         Transaccion::create([
-                            "monto" => $record->monto,
+                            "monto" => $data['monto'],
                             "concepto" => "pago de deuda " . $record->id . " por concepto de " . $record->descripcion,
                             "tipo_transaccion" => "Egreso",
                             "cuenta_id" => $data["cuenta_id"]
