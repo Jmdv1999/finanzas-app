@@ -2,16 +2,13 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\DeudaResource\Pages;
-use App\Filament\Resources\DeudaResource\RelationManagers;
-use App\Models\Cuenta;
-use App\Models\Deuda;
-use App\Models\Transaccion;
-use Filament\Actions\Action as ActionsAction;
-use Filament\Actions\Modal\Actions\Action;
+use App\Filament\Resources\CreditoResource\Pages;
+use App\Filament\Resources\CreditoResource\RelationManagers;
+use App\Models\Credito;
 use Filament\Forms;
+use App\Models\Cuenta;
+use App\Models\Transaccion;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -19,18 +16,18 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class DeudaResource extends Resource
+class CreditoResource extends Resource
 {
-    protected static ?string $model = Deuda::class;
+    protected static ?string $model = Credito::class;
 
     protected static ?string $navigationGroup = 'Financiero';
-    protected static ?string $navigationIcon = 'heroicon-o-arrow-trending-down';
+    protected static ?string $navigationIcon = 'heroicon-o-arrow-trending-up';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('acreedor')
+                Forms\Components\TextInput::make('cliente')
                     ->required()
                     ->maxLength(50),
                 Forms\Components\TextInput::make('monto')
@@ -39,7 +36,7 @@ class DeudaResource extends Resource
                     ->prefix('$'),
                 Forms\Components\Textarea::make('descripcion')
                     ->required()
-                    ->columnSpanFull()
+                    ->columnSpanFull(),
             ]);
     }
 
@@ -47,18 +44,19 @@ class DeudaResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('acreedor')
+                Tables\Columns\TextColumn::make('cliente')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('monto')
                     ->numeric()
                     ->sortable()
                     ->prefix('$'),
                 Tables\Columns\TextColumn::make('estado')
+                    ->sortable()
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
                         'pendiente' => 'warning',
-                        'exonerada' => 'gray',
-                        'pagada' => 'success'
+                        'exonerado' => 'gray',
+                        'pagado' => 'success'
                     }),
                 Tables\Columns\TextColumn::make('descripcion')
                     ->searchable(),
@@ -77,24 +75,24 @@ class DeudaResource extends Resource
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\Action::make('marcarComoPagada')
-                    ->label('Pagada')
+                    ->label('Pagado')
                     ->icon('heroicon-o-banknotes')
                     ->form([
                         Select::make('cuenta_id')
                             ->label('Cuenta')
-                            ->options(Cuenta ::all()->pluck('nombre', 'id')->toArray())
+                            ->options(Cuenta::all()->pluck('nombre', 'id')->toArray())
                             ->required()
                             ->searchable()
                             ->preload(),
                     ])
                     ->action(function ($record, $data) {
-                        $record->estado = 'pagada';
+                        $record->estado = 'pagado';
                         $record->save();
 
                         Transaccion::create([
                             "monto" => $record->monto,
-                            "concepto" => "pago de deuda " . $record->id . " por concepto de " . $record->descripcion,
-                            "tipo_transaccion" => "Egreso",
+                            "concepto" => "pago de credito " . $record->id . " por concepto de " . $record->descripcion,
+                            "tipo_transaccion" => "Ingreso",
                             "cuenta_id" => $data["cuenta_id"]
                         ]);
                     })
@@ -106,12 +104,13 @@ class DeudaResource extends Resource
                     ->label('Exonerada')
                     ->icon('heroicon-o-banknotes')
                     ->action(function ($record) {
-                        $record->estado = 'exonerada';
+                        $record->estado = 'exonerado';
                         $record->save();
                     })
                     ->requiresConfirmation()
                     ->color('success')
                     ->visible(fn ($record) => $record->estado === 'pendiente'),
+
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -130,9 +129,9 @@ class DeudaResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListDeudas::route('/'),
-            'create' => Pages\CreateDeuda::route('/create'),
-            'edit' => Pages\EditDeuda::route('/{record}/edit'),
+            'index' => Pages\ListCreditos::route('/'),
+            'create' => Pages\CreateCredito::route('/create'),
+            'edit' => Pages\EditCredito::route('/{record}/edit'),
         ];
     }
 }
